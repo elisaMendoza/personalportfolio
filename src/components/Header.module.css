@@ -1,0 +1,29 @@
+.header {
+  background: linear-gradient(90deg, #0ff 0%, #00f 100%);
+  border-bottom: 2px solid #0ff;
+  padding: 2rem 0;
+  box-shadow: 0 2px 20px #00f8;
+}
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  justify-content: center;
+}
+.avatar {
+  border-radius: 50%;
+  border: 3px solid #0ff;
+  box-shadow: 0 0 20px #0ff8;
+}
+.name {
+  font-size: 2.5rem;
+  color: #0ff;
+  text-shadow: 0 0 10px #00f, 0 0 20px #0ff;
+  font-family: 'Orbitron', sans-serif;
+}
+.bio {
+  color: #fff;
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+  font-family: 'Orbitron', sans-serif;
+}

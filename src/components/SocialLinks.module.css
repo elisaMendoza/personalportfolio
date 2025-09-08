@@ -1,0 +1,31 @@
+.socialNav {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+.socialList {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  padding: 0;
+}
+.socialLink {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #0ff;
+  font-size: 1.2rem;
+  text-decoration: none;
+  font-family: 'Orbitron', sans-serif;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s, color 0.2s;
+}
+.socialLink:hover {
+  color: #fff;
+  border-bottom: 2px solid #0ff;
+}
+.icon {
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 0 6px #0ff8);
+}
