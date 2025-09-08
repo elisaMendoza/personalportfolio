@@ -1,8 +1,22 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Personal Portfolio - Futuristic Tron Style
+
+This is a personal portfolio built with [Next.js](https://nextjs.org), featuring a futuristic Tron-inspired design. The MVP showcases:
+
+- **Your name, photo, and short bio**
+- **Static links to your social networks**
+- **A grid of web development and cybersecurity projects**
+- **Reusable React components** (`Header`, `SocialLinks`, `Projects`)
+- **Modern UI with Flexbox, CSS Grid, and custom global styles**
+- **Google Fonts: Orbitron & Roboto** for a cyber look
+
+---
 
 ## Getting Started
 
-First, run the development server:
+
+## Getting Started
+
+First, install dependencies and run the development server:
 
 ```bash
 npm run dev
@@ -16,21 +30,24 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Main files to customize:
+- `src/app/page.js` (main page layout)
+- `src/components/Header.js` (name, photo, bio)
+- `src/components/SocialLinks.js` (social media links)
+- `src/components/Projects.js` (project cards)
+- `src/app/globals.css` (global Tron-like styles)
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Orbitron](https://fonts.google.com/specimen/Orbitron) and [Roboto](https://fonts.google.com/specimen/Roboto) for a futuristic look.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Customization & Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Update your photo in `public/file.svg` or replace with your own image
+- Edit your bio and social links in the respective components
+- Add or modify projects in `Projects.js`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+To deploy, use [Vercel](https://vercel.com/) or your preferred platform. See [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for details.
