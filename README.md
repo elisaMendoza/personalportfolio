@@ -10,10 +10,6 @@ This is a personal portfolio built with [Next.js](https://nextjs.org), featuring
 - **Google Fonts: Orbitron & Roboto** for a cyber look
 
 ---
-
-## Getting Started
-
-
 ## Getting Started
 
 First, install dependencies and run the development server:
