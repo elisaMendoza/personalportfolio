@@ -47,3 +47,67 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 - Add or modify projects in `Projects.js`
 
 To deploy, use [Vercel](https://vercel.com/) or your preferred platform. See [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for details.
+
+---
+
+## Prisma (database) — quick setup
+
+This project includes a minimal Prisma setup to store `Project` and `Contact` records using SQLite during development. The following steps explain how to initialize and use Prisma locally.
+
+1. Install dev dependency (already present in `devDependencies`):
+
+```powershell
+npm install prisma --save-dev
+# (or if you prefer yarn/pnpm)
+```
+
+2. Ensure `@prisma/client` is installed (should be in `dependencies`):
+
+```powershell
+npm install @prisma/client
+```
+
+3. Create or edit `.env` in project root and set the database URL (SQLite example):
+
+```text
+DATABASE_URL="file:./dev.db"
+```
+
+4. Update your Prisma schema if you edit models. The schema file is at `prisma/schema.prisma`.
+
+5. Run Prisma generate (build the client used by the app):
+
+```powershell
+npx prisma generate
+```
+
+6. Create a migration and apply it (for SQLite dev):
+
+```powershell
+npx prisma migrate dev --name init
+```
+
+7. (Optional) Open Prisma Studio to inspect data in the browser:
+
+```powershell
+npx prisma studio
+```
+
+8. Example usage from code (already included in the repo):
+
+- `src/lib/prisma.js` — single Prisma client instance export.
+- `src/server/project.js` — Project CRUD helpers.
+- `src/server/contact.js` — Contact CRUD helpers.
+
+You can run the demo script that uses these helpers:
+
+```powershell
+node index.js
+```
+
+If you change the Prisma schema (models), re-run `npx prisma generate` and create/apply a new migration so the generated client and database are in sync.
+
+Troubleshooting
+- If you get "@prisma/client did not initialize yet", run `npx prisma generate` and ensure `@prisma/client` is installed.
+- If migrations fail, double-check `DATABASE_URL` and that the `prisma` folder exists with `schema.prisma`.
+
