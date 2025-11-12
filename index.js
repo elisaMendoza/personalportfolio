@@ -13,7 +13,12 @@ async function main() {
   const projects = await listProjects({ publishedOnly: false });
   console.log('All projects', projects.length);
 
-  const c = await createContact({ name: 'Usuario', email: 'u@example.com', message: 'Hola desde index' });
+  const c = await createContact({ 
+    name: 'Usuario', 
+    email: 'u@example.com', 
+    subject: 'Consulta desde index',
+    message: 'Hola desde index' 
+  });
   console.log('Created contact', c.id);
 
   const contacts = await listContacts({ onlyUnread: true });

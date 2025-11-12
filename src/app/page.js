@@ -1,6 +1,7 @@
 import Header from '../components/Header';
 import SocialLinks from '../components/SocialLinks';
 import Projects from '../components/Projects';
+import ContactForm from '../components/ContactForm';
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <Header />
       <SocialLinks />
       <Projects />
+      <ContactForm />
     </div>
   );
 }

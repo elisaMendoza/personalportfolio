@@ -2,7 +2,9 @@ import { prisma } from '../lib/prisma.js';
 
 // Minimal Contact CRUD (plain JS)
 export async function createContact(data) {
-  if (!data || !data.name || !data.email || !data.message) throw new Error('name, email and message are required');
+  if (!data || !data.name || !data.email || !data.subject || !data.message) {
+    throw new Error('name, email, subject and message are required');
+  }
   return prisma.contact.create({ data });
 }
 
