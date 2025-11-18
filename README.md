@@ -62,6 +62,37 @@ To deploy, use [Vercel](https://vercel.com/) or your preferred platform. See [Ne
 
 This project includes a complete Prisma setup with PostgreSQL to store `Project` and `Contact` records. The contact form is fully integrated with the database.
 
+> 🐳 **¡Nuevo!** Ahora puedes usar Docker para una configuración más fácil y consistente.
+
+### 🐳 Option 1: Docker Setup (Recomendado)
+
+Usa Docker Compose para levantar PostgreSQL y PgAdmin automáticamente:
+
+```powershell
+# Levantar PostgreSQL + PgAdmin
+docker-compose up -d
+
+# Verificar que los contenedores estén corriendo
+docker-compose ps
+
+# Ver logs si hay problemas
+docker-compose logs postgres
+docker-compose logs pgadmin
+```
+
+**Servicios incluidos:**
+- **PostgreSQL 18**: Base de datos en puerto `5437`
+- **PgAdmin 4**: Interfaz web en `http://localhost:8080`
+  - Email: `admin@example.com`
+  - Password: `admin`
+
+**Variables de entorno para Docker:**
+```env
+DATABASE_URL="postgresql://postgres:admin@localhost:5437/portfolio_db?schema=public"
+```
+
+### 🖥️ Option 2: Local Setup
+
 ### 📋 Prerequisites
 
 1. **PostgreSQL Database**: Make sure you have PostgreSQL installed and running
@@ -69,24 +100,42 @@ This project includes a complete Prisma setup with PostgreSQL to store `Project`
 
 ### 🚀 Quick Setup
 
-1. **Install Dependencies** (already included in package.json):
+#### Para Docker (Recomendado):
 
+1. **Install Dependencies**:
 ```powershell
 npm install
 ```
 
-2. **Configure Environment Variables**:
+2. **Levantar contenedores**:
+```powershell
+docker-compose up -d
+```
 
-Create/edit `.env` in the project root:
+3. **Configure Environment Variables** (`.env`):
+```env
+DATABASE_URL="postgresql://postgres:admin@localhost:5437/portfolio_db?schema=public"
+```
 
-```text
+4. **Generate Prisma Client & Run Migrations**:
+```powershell
+npx prisma generate
+npx prisma migrate deploy
+```
+
+#### Para instalación local:
+
+1. **Install Dependencies**:
+```powershell
+npm install
+```
+
+2. **Configure Environment Variables** (`.env`):
+```env
 DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/portfolio_db?schema=public"
 ```
 
-Replace `YOUR_PASSWORD` with your PostgreSQL password.
-
 3. **Generate Prisma Client**:
-
 ```powershell
 npx prisma generate
 ```
@@ -142,6 +191,7 @@ model Project {
 
 ### 🛠️ Available Scripts
 
+#### Desarrollo:
 ```powershell
 # Start development server
 npm run dev
@@ -154,12 +204,44 @@ node test-api.js
 
 # Open Prisma Studio (database GUI)
 npx prisma studio
+```
+
+#### Base de datos:
+```powershell
+# Generate Prisma client
+npx prisma generate
+
+# Deploy migrations (production)
+npx prisma migrate deploy
 
 # Reset database (⚠️ deletes all data)
 npx prisma migrate reset
 
 # Create new migration after schema changes
 npx prisma migrate dev --name your_migration_name
+```
+
+#### Docker:
+```powershell
+# Levantar contenedores (PostgreSQL + PgAdmin)
+docker-compose up -d
+
+# Detener contenedores
+docker-compose down
+
+# Ver logs de contenedores
+docker-compose logs postgres
+docker-compose logs pgadmin
+
+# Reiniciar servicios
+docker-compose restart
+
+# Acceder al contenedor PostgreSQL
+docker exec -it postgres psql -U postgres -d portfolio_db
+
+# Limpiar volúmenes (⚠️ elimina datos persistentes)
+docker-compose down -v
+docker volume prune
 ```
 
 ### 📁 Database-Related Files
@@ -170,6 +252,28 @@ npx prisma migrate dev --name your_migration_name
 - `src/server/project.js` — Project CRUD operations  
 - `src/app/api/contact/route.js` — Contact form API endpoint
 - `.env` — Database connection string
+- `docker-compose.yml` — Docker services configuration
+
+### 🐳 Docker Configuration
+
+#### Services:
+- **postgres**: PostgreSQL 18 database
+  - Port: `5437` (host) → `5432` (container)
+  - User: `postgres` / Password: `admin`
+  - Database: `portfolio_db`
+  - Volume: `db_data` for data persistence
+
+- **pgadmin**: PgAdmin 4 web interface
+  - Port: `8080` (host) → `80` (container)
+  - URL: `http://localhost:8080`
+  - Login: `admin@example.com` / `admin`
+  - Volume: `pgadmin_data` for settings persistence
+
+#### Connection in PgAdmin:
+- Host: `postgres` (service name)
+- Port: `5432` (internal container port)
+- Database: `portfolio_db`
+- Username: `postgres` / Password: `admin`
 
 ### 🔧 API Endpoints
 
@@ -220,8 +324,15 @@ The contact form (`src/components/ContactForm.js`) includes:
 
 ### 🚨 Troubleshooting
 
+**Docker Issues:**
+- Container won't start: `docker-compose logs postgres`
+- Port conflicts: Change ports in `docker-compose.yml`
+- Data corruption: `docker-compose down -v && docker volume prune`
+- Permission issues: Run PowerShell as Administrator
+
 **Database Connection Issues:**
-- Verify PostgreSQL is running: `pg_ctl status`
+- **Docker**: Verify containers running with `docker-compose ps`
+- **Local**: Verify PostgreSQL is running: `Get-Service *postgresql*`
 - Check credentials in `.env` file
 - Ensure database `portfolio_db` exists
 
@@ -229,9 +340,11 @@ The contact form (`src/components/ContactForm.js`) includes:
 - Run `npx prisma generate` after schema changes
 - Use `npx prisma migrate reset` for fresh start (⚠️ deletes data)
 - Check `npx prisma studio` to browse database
+- **Docker**: Ensure containers are running before Prisma commands
 
 **API Issues:**
 - Verify server is running on `http://localhost:3000`
+- **Docker**: Ensure database container is healthy
 - Check browser developer tools for network errors
 - Test API directly with `node test-api.js`
 
@@ -240,7 +353,17 @@ The contact form (`src/components/ContactForm.js`) includes:
 # If you get provider mismatch errors:
 rm -rf prisma/migrations  # Delete migration history
 npx prisma migrate dev --name init  # Create fresh migrations
+
+# For Docker reset:
+docker-compose down -v
+docker volume prune
+docker-compose up -d
 ```
+
+**PgAdmin Issues:**
+- Can't access `http://localhost:8080`: Check if container is running
+- Connection refused: Use host `postgres`, not `localhost`
+- Login issues: Default credentials are `admin@example.com` / `admin`
 
 ---
 
@@ -301,11 +424,25 @@ This portfolio is production-ready with:
 
 ✅ **Modern Tech Stack**: Next.js 15 + React 19 + PostgreSQL + Prisma  
 ✅ **Full-Stack Functionality**: Frontend + Backend + Database  
+✅ **Docker Support**: Containerized database with PgAdmin  
 ✅ **Type Safety**: Prisma generated types  
 ✅ **Error Handling**: Comprehensive error management  
 ✅ **Responsive Design**: Mobile-first approach  
 ✅ **Performance**: Optimized builds and database queries  
 ✅ **Security**: Input validation and sanitization  
+✅ **Development Experience**: Hot reload, database GUI, container orchestration  
+
+### 🎯 Deployment Options:
+
+**Option 1: Docker Deployment**
+- Use `docker-compose.yml` for consistent environments
+- Update environment variables for production
+- Consider managed PostgreSQL for production databases
+
+**Option 2: Traditional Deployment**
+- Deploy to Vercel, Netlify, or similar platforms
+- Use cloud databases (AWS RDS, Railway, Supabase)
+- Update `DATABASE_URL` for production
 
 Just update your environment variables and deploy! 🚀
 
