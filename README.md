@@ -6,44 +6,51 @@ This is a personal portfolio built with [Next.js](https://nextjs.org), featuring
 - **Static links to your social networks**
 - **A grid of web development and cybersecurity projects**
 - **🆕 Contact form with frontend validation and PostgreSQL integration**
-- **🐳 Fully containerized with Docker** (Next.js app + PostgreSQL + PgAdmin)
+- **☁️ Deployment-ready for Vercel + Supabase**
 - **Reusable React components** (`Header`, `SocialLinks`, `Projects`, `ContactForm`)
 - **Modern UI with Flexbox, CSS Grid, and custom global styles**
 - **Google Fonts: Orbitron & Roboto** for a cyber look
 - **🆕 Full-stack functionality with API routes and database**
-- **🚀 Auto-migrations** on container startup
+- **🚀 Prisma migrations ready for production deploys**
 
 ---
 ## Getting Started
 
-### 🐳 Quick Start with Docker (Recommended)
+### ☁️ Quick Start (Vercel + Supabase workflow)
 
-The easiest way to run the entire application:
+1. Clone and install:
 
 ```powershell
-# Clone the repository
 git clone https://github.com/elisaMendoza/personalportfolio.git
 cd personalportfolio
-
-# Start all services (app + database + pgadmin)
-docker-compose up -d
-
-# View logs
-docker-compose logs -f app
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see your portfolio!
+2. Create your local env file from template:
 
-### 💻 Local Development (Without Docker)
+```powershell
+copy .env.example .env
+```
 
-Alternatively, run the development server locally:
+3. Set your `DATABASE_URL` (Supabase pooler) and `DIRECT_URL` (Supabase direct) in `.env`.
 
-```bash
-npm install
+4. Prepare Prisma and run development server:
+
+```powershell
+npm run prisma:generate
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see your portfolio.
+
+### 🐳 Optional: Local Docker stack
+
+If you still want the full local container setup (app + PostgreSQL + PgAdmin), use:
+
+```powershell
+docker-compose up -d
+docker-compose logs -f app
+```
 
 
 Main files to customize:
@@ -71,7 +78,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 To deploy, use [Vercel](https://vercel.com/) or your preferred platform. See [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for details.
 
-**Important for deployment:** Update your `DATABASE_URL` environment variable with your production PostgreSQL database credentials.
+**Important for deployment:** Configure both `DATABASE_URL` and `DIRECT_URL` with your production PostgreSQL credentials.
 
 ---
 
@@ -79,9 +86,18 @@ To deploy, use [Vercel](https://vercel.com/) or your preferred platform. See [Ne
 
 This project includes a complete Prisma setup with PostgreSQL to store `Project` and `Contact` records. The contact form is fully integrated with the database.
 
-> 🐳 **¡Nuevo!** Ahora puedes usar Docker para una configuración más fácil y consistente.
+### ☁️ Option 1 (Recommended): Supabase + Vercel
 
-### 🐳 Option 1: Docker Setup (Recomendado)
+**Configurar para producción serverless:**
+
+1. Crea un proyecto en Supabase.
+2. Copia las dos cadenas de conexión:
+  - `DATABASE_URL` → Transaction Pooler (`:6543`)
+  - `DIRECT_URL` → Direct connection (`:5432`)
+3. En Vercel, configura esas variables de entorno.
+4. Usa `npm run build:vercel` como build command.
+
+### 🐳 Option 2: Docker Setup (Optional)
 
 **Todo en un comando - Aplicación completa containerizada:**
 
@@ -125,7 +141,7 @@ DATABASE_URL="postgresql://postgres:admin@postgres:5432/portfolio_db?schema=publ
 DATABASE_URL="postgresql://postgres:admin@localhost:5437/portfolio_db?schema=public"
 ```
 
-### 🖥️ Option 2: Local Setup
+### 🖥️ Option 3: Local Setup
 
 ### 📋 Prerequisites
 
@@ -134,7 +150,7 @@ DATABASE_URL="postgresql://postgres:admin@localhost:5437/portfolio_db?schema=pub
 
 ### 🚀 Quick Setup
 
-#### Para Docker (Recomendado):
+#### Para Docker (Opcional):
 
 1. **Install Dependencies**:
 ```powershell
@@ -575,8 +591,9 @@ This portfolio is production-ready with:
 
 ✅ **Modern Tech Stack**: Next.js 15 + React 19 + PostgreSQL 18 + Prisma 6  
 ✅ **Full-Stack Functionality**: Frontend + Backend + Database  
-✅ **Fully Containerized**: App + Database + Admin Panel with Docker  
-✅ **Auto-Migrations**: Database migrations run automatically on startup  
+✅ **Serverless-Ready**: Vercel + Supabase deployment workflow  
+✅ **Docker Support**: Full local stack with PostgreSQL + PgAdmin  
+✅ **Auto-Migrations**: Database migrations integrated in deployment build  
 ✅ **Multi-Stage Builds**: Optimized Docker images with standalone output  
 ✅ **Type Safety**: Prisma generated types  
 ✅ **Error Handling**: Comprehensive error management  
@@ -587,7 +604,13 @@ This portfolio is production-ready with:
 
 ### 🎯 Deployment Options:
 
-**Option 1: Docker Deployment (Full Control)**
+**Option 1: Platform Deployment (Recommended)**
+- Deploy Next.js to **Vercel** (automatic from Git)
+- Use cloud databases: **Supabase**, **Railway**, **Neon**
+- Set `DATABASE_URL` + `DIRECT_URL` in platform environment variables
+- Run migrations in build step with `npm run build:vercel`
+
+**Option 2: Docker Deployment (Full Control)**
 ```powershell
 # Production deployment
 docker-compose -f docker-compose.prod.yml up -d
@@ -600,21 +623,33 @@ docker-compose -f docker-compose.prod.yml up -d
 - Consider managed PostgreSQL (AWS RDS, DigitalOcean Managed DB)
 - Set secure passwords in production `.env`
 
-**Option 2: Platform Deployment (Serverless)**
-- Deploy Next.js to **Vercel** (automatic from Git)
-- Use cloud databases: **Supabase**, **Railway**, **Neon**
-- Update `DATABASE_URL` in platform environment variables
-- Run `npx prisma migrate deploy` in build step
-
 **Option 3: Hybrid (App on Platform + Dockerized DB)**
 - Next.js on Vercel/Netlify
 - PostgreSQL on Docker in VPS
 - PgAdmin for database management
 
+#### ✅ Recommended setup for Vercel + Supabase
+
+1. Create a new branch for deployment changes (for example: `deploy/vercel-supabase`).
+2. Create a Supabase project and copy both connection strings:
+  - **Transaction Pooler** (`:6543`) → use as `DATABASE_URL`
+  - **Direct connection** (`:5432`) → use as `DIRECT_URL`
+3. In Vercel Project Settings → Environment Variables, add:
+  - `DATABASE_URL`
+  - `DIRECT_URL`
+4. In Vercel Build & Development Settings, use build command:
+  - `npm run build:vercel`
+5. Keep Start Command as default for Next.js.
+6. Deploy and test the contact form endpoint in production.
+
+> You can use `.env.example` as a template for local/project variables.
+
 ### 🔐 Production Checklist:
 
-- [ ] Change default passwords in `docker-compose.yml`
-- [ ] Use strong `POSTGRES_PASSWORD` and `PGADMIN_DEFAULT_PASSWORD`
+- [ ] Configure Vercel environment variables (`DATABASE_URL`, `DIRECT_URL`)
+- [ ] Set Vercel build command to `npm run build:vercel`
+- [ ] (Docker only) Change default passwords in `docker-compose.yml`
+- [ ] (Docker only) Use strong `POSTGRES_PASSWORD` and `PGADMIN_DEFAULT_PASSWORD`
 - [ ] Set `NODE_ENV=production`
 - [ ] Configure SSL for PostgreSQL connections
 - [ ] Set up automatic backups for `db_data` volume
