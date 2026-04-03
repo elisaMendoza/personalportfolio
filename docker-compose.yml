@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: portfolio_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: portfolio_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - db_data:/var/lib/postgresql
+    networks:
+      - portfolio_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: portfolio_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - portfolio_network
+    depends_on:
+      - postgres
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portfolio_app
+    environment:
+      DATABASE_URL: "postgresql://postgres:admin@postgres:5432/portfolio_db?schema=public"
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    networks:
+      - portfolio_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  portfolio_network:
+    driver: bridge
+
+volumes:
+  db_data:
+  pgadmin_data:

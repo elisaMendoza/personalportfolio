@@ -6,27 +6,51 @@ This is a personal portfolio built with [Next.js](https://nextjs.org), featuring
 - **Static links to your social networks**
 - **A grid of web development and cybersecurity projects**
 - **🆕 Contact form with frontend validation and PostgreSQL integration**
+- **☁️ Deployment-ready for Vercel + Supabase**
 - **Reusable React components** (`Header`, `SocialLinks`, `Projects`, `ContactForm`)
 - **Modern UI with Flexbox, CSS Grid, and custom global styles**
 - **Google Fonts: Orbitron & Roboto** for a cyber look
 - **🆕 Full-stack functionality with API routes and database**
+- **🚀 Prisma migrations ready for production deploys**
 
 ---
 ## Getting Started
 
-First, install dependencies and run the development server:
+### ☁️ Quick Start (Vercel + Supabase workflow)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+1. Clone and install:
+
+```powershell
+git clone https://github.com/elisaMendoza/personalportfolio.git
+cd personalportfolio
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Create your local env file from template:
+
+```powershell
+copy .env.example .env
+```
+
+3. Set your `DATABASE_URL` (Supabase pooler) and `DIRECT_URL` (Supabase direct) in `.env`.
+
+4. Prepare Prisma and run development server:
+
+```powershell
+npm run prisma:generate
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to see your portfolio.
+
+### 🐳 Optional: Local Docker stack
+
+If you still want the full local container setup (app + PostgreSQL + PgAdmin), use:
+
+```powershell
+docker-compose up -d
+docker-compose logs -f app
+```
 
 
 Main files to customize:
@@ -54,13 +78,70 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 To deploy, use [Vercel](https://vercel.com/) or your preferred platform. See [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for details.
 
-**Important for deployment:** Update your `DATABASE_URL` environment variable with your production PostgreSQL database credentials.
+**Important for deployment:** Configure both `DATABASE_URL` and `DIRECT_URL` with your production PostgreSQL credentials.
 
 ---
 
 ## Database Setup (PostgreSQL + Prisma)
 
 This project includes a complete Prisma setup with PostgreSQL to store `Project` and `Contact` records. The contact form is fully integrated with the database.
+
+### ☁️ Option 1 (Recommended): Supabase + Vercel
+
+**Configurar para producción serverless:**
+
+1. Crea un proyecto en Supabase.
+2. Copia las dos cadenas de conexión:
+  - `DATABASE_URL` → Transaction Pooler (`:6543`)
+  - `DIRECT_URL` → Direct connection (`:5432`)
+3. En Vercel, configura esas variables de entorno.
+4. Usa `npm run build:vercel` como build command.
+
+### 🐳 Option 2: Docker Setup (Optional)
+
+**Todo en un comando - Aplicación completa containerizada:**
+
+```powershell
+# Levantar todos los servicios
+docker-compose up -d
+
+# Verificar que los contenedores estén corriendo
+docker-compose ps
+
+# Ver logs en tiempo real
+docker-compose logs -f app
+docker-compose logs -f postgres
+```
+
+**🎯 Servicios incluidos:**
+
+1. **📱 Portfolio App (Next.js 15)**
+   - URL: `http://localhost:3000`
+   - Auto-ejecuta migraciones de Prisma al iniciar
+   - Production-ready build con standalone output
+   - Healthcheck automático de PostgreSQL
+
+2. **🗄️ PostgreSQL 18**
+   - Puerto: `5437` (host) → `5432` (container)
+   - Database: `portfolio_db`
+   - User: `postgres` / Password: `admin`
+   - Persistencia con volumen Docker
+
+3. **🖥️ PgAdmin 4**
+   - URL: `http://localhost:8080`
+   - Login: `admin@example.com` / `admin`
+   - Conectar a host: `postgres`, port: `5432`
+
+**Variables de entorno (automáticas en Docker):**
+```env
+# Dentro del contenedor (usa nombre de servicio)
+DATABASE_URL="postgresql://postgres:admin@postgres:5432/portfolio_db?schema=public"
+
+# Para desarrollo local (usa localhost)
+DATABASE_URL="postgresql://postgres:admin@localhost:5437/portfolio_db?schema=public"
+```
+
+### 🖥️ Option 3: Local Setup
 
 ### 📋 Prerequisites
 
@@ -69,24 +150,42 @@ This project includes a complete Prisma setup with PostgreSQL to store `Project`
 
 ### 🚀 Quick Setup
 
-1. **Install Dependencies** (already included in package.json):
+#### Para Docker (Opcional):
 
+1. **Install Dependencies**:
 ```powershell
 npm install
 ```
 
-2. **Configure Environment Variables**:
+2. **Levantar contenedores**:
+```powershell
+docker-compose up -d
+```
 
-Create/edit `.env` in the project root:
+3. **Configure Environment Variables** (`.env`):
+```env
+DATABASE_URL="postgresql://postgres:admin@localhost:5437/portfolio_db?schema=public"
+```
 
-```text
+4. **Generate Prisma Client & Run Migrations**:
+```powershell
+npx prisma generate
+npx prisma migrate deploy
+```
+
+#### Para instalación local:
+
+1. **Install Dependencies**:
+```powershell
+npm install
+```
+
+2. **Configure Environment Variables** (`.env`):
+```env
 DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/portfolio_db?schema=public"
 ```
 
-Replace `YOUR_PASSWORD` with your PostgreSQL password.
-
 3. **Generate Prisma Client**:
-
 ```powershell
 npx prisma generate
 ```
@@ -142,6 +241,7 @@ model Project {
 
 ### 🛠️ Available Scripts
 
+#### Desarrollo:
 ```powershell
 # Start development server
 npm run dev
@@ -154,12 +254,62 @@ node test-api.js
 
 # Open Prisma Studio (database GUI)
 npx prisma studio
+```
+
+#### Base de datos:
+```powershell
+# Generate Prisma client
+npx prisma generate
+
+# Deploy migrations (production)
+npx prisma migrate deploy
 
 # Reset database (⚠️ deletes all data)
 npx prisma migrate reset
 
 # Create new migration after schema changes
 npx prisma migrate dev --name your_migration_name
+```
+
+#### Docker:
+```powershell
+# Levantar todos los servicios (App + PostgreSQL + PgAdmin)
+docker-compose up -d
+
+# Levantar con rebuild (después de cambios en código)
+docker-compose up --build -d
+
+# Ver estado de todos los contenedores
+docker-compose ps
+
+# Ver logs en tiempo real
+docker-compose logs -f app
+docker-compose logs -f postgres
+docker-compose logs -f pgadmin
+
+# Detener contenedores (mantiene datos)
+docker-compose down
+
+# Detener y eliminar volúmenes (⚠️ elimina datos)
+docker-compose down -v
+
+# Reiniciar un servicio específico
+docker-compose restart app
+
+# Reconstruir solo la app
+docker-compose up --build app -d
+
+# Acceder al contenedor de la app
+docker exec -it portfolio_app sh
+
+# Acceder al contenedor PostgreSQL
+docker exec -it portfolio_postgres psql -U postgres -d portfolio_db
+
+# Ver uso de recursos
+docker stats
+
+# Limpiar sistema Docker completo
+docker system prune -a --volumes
 ```
 
 ### 📁 Database-Related Files
@@ -169,7 +319,55 @@ npx prisma migrate dev --name your_migration_name
 - `src/server/contact.js` — Contact CRUD operations
 - `src/server/project.js` — Project CRUD operations  
 - `src/app/api/contact/route.js` — Contact form API endpoint
-- `.env` — Database connection string
+- `.env` — Local development database connection
+- `.env.docker` — Docker container database connection
+- `docker-compose.yml` — Docker services orchestration
+- `Dockerfile` — Multi-stage Next.js container build
+- `docker-entrypoint.sh` — Startup script (migrations + app)
+- `.dockerignore` — Files excluded from Docker build
+
+### 🐳 Docker Configuration
+
+#### Services:
+
+**1. app (Next.js Application)**
+  - Container: `portfolio_app`
+  - Port: `3000` (host) → `3000` (container)
+  - URL: `http://localhost:3000`
+  - Features:
+    - ✅ Multi-stage build (deps → builder → runner)
+    - ✅ Auto-executes Prisma migrations on startup
+    - ✅ Production-ready with standalone output
+    - ✅ Waits for PostgreSQL health check
+    - ✅ Non-root user (nextjs:nodejs)
+  - Environment:
+    - `NODE_ENV=production`
+    - `DATABASE_URL=postgresql://postgres:admin@postgres:5432/portfolio_db?schema=public`
+
+**2. postgres (PostgreSQL 18)**
+  - Container: `portfolio_postgres`
+  - Port: `5437` (host) → `5432` (container)
+  - User: `postgres` / Password: `admin`
+  - Database: `portfolio_db`
+  - Volume: `db_data` → `/var/lib/postgresql`
+  - Healthcheck: `pg_isready -U postgres` every 5s
+
+**3. pgadmin (PgAdmin 4)**
+  - Container: `portfolio_pgadmin`
+  - Port: `8080` (host) → `80` (container)
+  - URL: `http://localhost:8080`
+  - Login: `admin@example.com` / `admin`
+  - Volume: `pgadmin_data` → `/var/lib/pgadmin`
+
+#### Network:
+- Custom bridge network: `portfolio_network`
+- All services communicate using service names
+
+#### Connection in PgAdmin:
+- Host: `postgres` (service name, not localhost)
+- Port: `5432` (internal container port)
+- Database: `portfolio_db`
+- Username: `postgres` / Password: `admin`
 
 ### 🔧 API Endpoints
 
@@ -220,8 +418,21 @@ The contact form (`src/components/ContactForm.js`) includes:
 
 ### 🚨 Troubleshooting
 
+**Docker Issues:**
+- **App container won't start**: `docker-compose logs app`
+  - Check if migrations failed
+  - Verify DATABASE_URL is correct
+  - Ensure PostgreSQL is healthy: `docker-compose ps`
+- **Build failures**: `docker-compose build --no-cache app`
+- **Port conflicts**: Change ports in `docker-compose.yml`
+- **Data corruption**: `docker-compose down -v && docker volume prune -f`
+- **Permission issues**: Run PowerShell as Administrator
+- **Slow builds**: Use `docker system prune` to free space
+- **Migration errors**: Check `docker logs portfolio_app` for Prisma errors
+
 **Database Connection Issues:**
-- Verify PostgreSQL is running: `pg_ctl status`
+- **Docker**: Verify containers running with `docker-compose ps`
+- **Local**: Verify PostgreSQL is running: `Get-Service *postgresql*`
 - Check credentials in `.env` file
 - Ensure database `portfolio_db` exists
 
@@ -229,9 +440,11 @@ The contact form (`src/components/ContactForm.js`) includes:
 - Run `npx prisma generate` after schema changes
 - Use `npx prisma migrate reset` for fresh start (⚠️ deletes data)
 - Check `npx prisma studio` to browse database
+- **Docker**: Ensure containers are running before Prisma commands
 
 **API Issues:**
 - Verify server is running on `http://localhost:3000`
+- **Docker**: Ensure database container is healthy
 - Check browser developer tools for network errors
 - Test API directly with `node test-api.js`
 
@@ -240,7 +453,17 @@ The contact form (`src/components/ContactForm.js`) includes:
 # If you get provider mismatch errors:
 rm -rf prisma/migrations  # Delete migration history
 npx prisma migrate dev --name init  # Create fresh migrations
+
+# For Docker reset:
+docker-compose down -v
+docker volume prune
+docker-compose up -d
 ```
+
+**PgAdmin Issues:**
+- Can't access `http://localhost:8080`: Check if container is running
+- Connection refused: Use host `postgres`, not `localhost`
+- Login issues: Default credentials are `admin@example.com` / `admin`
 
 ---
 
@@ -271,14 +494,41 @@ personalportfolio/
 │   ├── 📁 migrations/                # Database migration files
 │   └── schema.prisma                 # Database schema
 ├── 📁 public/                        # Static assets
-├── .env                              # Environment variables
+├── 🐳 docker-compose.yml             # Docker services orchestration
+├── 🐳 Dockerfile                     # Multi-stage Next.js build
+├── 🐳 docker-entrypoint.sh           # Container startup script
+├── 🐳 .dockerignore                  # Docker build exclusions
+├── .env                              # Local environment variables
+├── .env.docker                       # Docker environment variables
 ├── index.js                          # Database test script
 ├── test-api.js                       # API test script
+├── next.config.mjs                   # Next.js config (standalone)
 └── package.json                      # Dependencies and scripts
 ```
 
 ## 🔄 Data Flow
 
+### Application Request Flow:
+```
+Browser → Next.js App (Container) → API Route → Prisma Client → PostgreSQL (Container)
+   ↓             ↓                       ↓            ↓               ↓
+User      ContactForm.js            route.js    createContact()  portfolio_db
+```
+
+### Docker Container Flow:
+```
+docker-compose up -d
+     ↓
+1. PostgreSQL starts → Creates database → Healthcheck passes
+     ↓
+2. App container starts → Waits for PostgreSQL → Runs migrations → Starts Next.js
+     ↓
+3. PgAdmin starts → Available for database management
+     ↓
+4. All services connected via portfolio_network
+```
+
+### Contact Form Data Flow:
 ```
 Contact Form → Frontend Validation → API Route → Backend Validation → PostgreSQL → Response → UI Update
      ↓                ↓                  ↓              ↓              ↓           ↓         ↓
@@ -287,11 +537,51 @@ ContactForm.js   validateForm()    route.js    createContact()   PostgreSQL   JS
 
 ## 🎨 Component Architecture
 
+### React Components:
 - **`ContactForm.js`**: Smart component with state management, validation, and API calls
 - **`ContactForm.module.css`**: Isolated styles with Tron aesthetic
+- **`Header.js`**: Portfolio header with bio and photo
+- **`Projects.js`**: Grid of project cards
+- **`SocialLinks.js`**: Social media icons and links
+
+### Backend:
 - **`route.js`**: API endpoint handling HTTP requests and database operations
 - **`contact.js`**: Database abstraction layer with CRUD operations
+- **`project.js`**: Project database operations
 - **`prisma.js`**: Database client singleton for connection management
+
+### Docker Architecture:
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Docker Compose Stack                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────┐ │
+│  │  Next.js App     │  │  PostgreSQL 18   │  │ PgAdmin  │ │
+│  │  (portfolio_app) │  │ (portfolio_pg)   │  │          │ │
+│  ├──────────────────┤  ├──────────────────┤  ├──────────┤ │
+│  │ Port: 3000       │  │ Port: 5437→5432  │  │ Port: 80 │ │
+│  │ Node 20 Alpine   │  │ Postgres 18      │  │ PgAdmin4 │ │
+│  │ Multi-stage      │  │ Volume: db_data  │  │ Web GUI  │ │
+│  │ Standalone build │  │ Healthcheck ✓    │  │          │ │
+│  └────────┬─────────┘  └────────┬─────────┘  └─────┬────┘ │
+│           │                     │                   │      │
+│           └─────────────────────┴───────────────────┘      │
+│                    portfolio_network (bridge)              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Dockerfile Multi-Stage Build:
+```
+Stage 1 (deps):     Install dependencies → node_modules
+       ↓
+Stage 2 (builder):  Copy deps → Generate Prisma → Build Next.js
+       ↓
+Stage 3 (runner):   Copy only production files → Install Prisma CLI
+       ↓            → Setup entrypoint script → Run as non-root
+       ↓
+   Production Image: Optimized, secure, ready to deploy
+```
 
 ---
 
@@ -299,13 +589,161 @@ ContactForm.js   validateForm()    route.js    createContact()   PostgreSQL   JS
 
 This portfolio is production-ready with:
 
-✅ **Modern Tech Stack**: Next.js 15 + React 19 + PostgreSQL + Prisma  
+✅ **Modern Tech Stack**: Next.js 15 + React 19 + PostgreSQL 18 + Prisma 6  
 ✅ **Full-Stack Functionality**: Frontend + Backend + Database  
+✅ **Serverless-Ready**: Vercel + Supabase deployment workflow  
+✅ **Docker Support**: Full local stack with PostgreSQL + PgAdmin  
+✅ **Auto-Migrations**: Database migrations integrated in deployment build  
+✅ **Multi-Stage Builds**: Optimized Docker images with standalone output  
 ✅ **Type Safety**: Prisma generated types  
 ✅ **Error Handling**: Comprehensive error management  
 ✅ **Responsive Design**: Mobile-first approach  
 ✅ **Performance**: Optimized builds and database queries  
-✅ **Security**: Input validation and sanitization  
+✅ **Security**: Input validation, sanitization, non-root containers  
+✅ **Development Experience**: Hot reload, database GUI, container orchestration  
+
+### 🎯 Deployment Options:
+
+**Option 1: Platform Deployment (Recommended)**
+- Deploy Next.js to **Vercel** (automatic from Git)
+- Use cloud databases: **Supabase**, **Railway**, **Neon**
+- Set `DATABASE_URL` + `DIRECT_URL` in platform environment variables
+- Run migrations in build step with `npm run build:vercel`
+
+**Option 2: Docker Deployment (Full Control)**
+```powershell
+# Production deployment
+docker-compose -f docker-compose.prod.yml up -d
+
+# Use managed databases for production
+# Update DATABASE_URL to point to cloud PostgreSQL
+```
+- Deploy to any VPS (DigitalOcean, AWS EC2, Azure VM)
+- Use `docker-compose.yml` for consistent environments
+- Consider managed PostgreSQL (AWS RDS, DigitalOcean Managed DB)
+- Set secure passwords in production `.env`
+
+**Option 3: Hybrid (App on Platform + Dockerized DB)**
+- Next.js on Vercel/Netlify
+- PostgreSQL on Docker in VPS
+- PgAdmin for database management
+
+#### ✅ Recommended setup for Vercel + Supabase
+
+1. Create a new branch for deployment changes (for example: `deploy/vercel-supabase`).
+2. Create a Supabase project and copy both connection strings:
+  - **Transaction Pooler** (`:6543`) → use as `DATABASE_URL`
+  - **Direct connection** (`:5432`) → use as `DIRECT_URL`
+3. In Vercel Project Settings → Environment Variables, add:
+  - `DATABASE_URL`
+  - `DIRECT_URL`
+4. In Vercel Build & Development Settings, use build command:
+  - `npm run build:vercel`
+5. Keep Start Command as default for Next.js.
+6. Deploy and test the contact form endpoint in production.
+
+> You can use `.env.example` as a template for local/project variables.
+
+### 🔐 Production Checklist:
+
+- [ ] Configure Vercel environment variables (`DATABASE_URL`, `DIRECT_URL`)
+- [ ] Set Vercel build command to `npm run build:vercel`
+- [ ] (Docker only) Change default passwords in `docker-compose.yml`
+- [ ] (Docker only) Use strong `POSTGRES_PASSWORD` and `PGADMIN_DEFAULT_PASSWORD`
+- [ ] Set `NODE_ENV=production`
+- [ ] Configure SSL for PostgreSQL connections
+- [ ] Set up automatic backups for `db_data` volume
+- [ ] Configure firewall rules (only expose necessary ports)
+- [ ] Use secrets management (Azure Key Vault, AWS Secrets Manager)
+- [ ] Set up monitoring and logging (Prometheus, Grafana)
+- [ ] Enable HTTPS with reverse proxy (nginx, Traefik)
+- [ ] Configure rate limiting on API routes
+- [ ] Set up CI/CD pipeline (GitHub Actions, GitLab CI)
+- [ ] Enable Docker health checks in production
+- [ ] Configure resource limits in docker-compose
+
+---
+
+## 🛠️ Technical Highlights
+
+### Docker Features:
+- ✨ **Multi-stage builds** for minimal image size
+- ✨ **Non-root user** for enhanced security
+- ✨ **Health checks** to ensure service availability
+- ✨ **Named volumes** for data persistence
+- ✨ **Custom network** for service isolation
+- ✨ **Automatic migrations** via entrypoint script
+- ✨ **Standalone output** for optimal Next.js deployment
+
+### Next.js Features:
+- 🚀 **Turbopack** for faster builds and HMR
+- 🚀 **App Router** with Server Components
+- 🚀 **API Routes** for backend functionality
+- 🚀 **Module CSS** for component-scoped styles
+- 🚀 **Font optimization** with next/font
+
+### Database Features:
+- 💾 **Prisma ORM** for type-safe database access
+- 💾 **Migration system** for version control
+- 💾 **Connection pooling** via Prisma Client
+- 💾 **PostgreSQL 18** with latest features
+- 💾 **PgAdmin 4** for visual database management
+
+### Development Experience:
+- 🔧 **Hot Module Replacement** in development
+- 🔧 **Docker Compose** for one-command setup
+- 🔧 **Prisma Studio** for database browsing
+- 🔧 **TypeScript support** (easily upgradable)
+- 🔧 **ESLint** for code quality
+
+---
+
+## 📚 Learn More
+
+### Documentation:
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Prisma Documentation](https://www.prisma.io/docs)
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [Docker Documentation](https://docs.docker.com/)
+- [Docker Compose Documentation](https://docs.docker.com/compose/)
+
+### Tutorials:
+- [Next.js Learn](https://nextjs.org/learn)
+- [Prisma Getting Started](https://www.prisma.io/docs/getting-started)
+- [Docker for Beginners](https://docker-curriculum.com/)
+
+---
+
+## 🤝 Contributing
+
+Feel free to fork this project and customize it for your own portfolio!
+
+### How to contribute:
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/AmazingFeature`
+3. Commit your changes: `git commit -m 'Add some AmazingFeature'`
+4. Push to the branch: `git push origin feature/AmazingFeature`
+5. Open a Pull Request
+
+---
+
+## 📝 License
+
+This project is open source and available for personal and commercial use.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Next.js Team** for the amazing framework
+- **Prisma Team** for the excellent ORM
+- **Docker** for containerization technology
+- **PostgreSQL** for the robust database
+- **Google Fonts** for Orbitron and Roboto
+
+---
+
+**Made with ❤️ and ☕ by Elisa Mendoza**
 
 Just update your environment variables and deploy! 🚀
 

@@ -1,4 +1,10 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
+
+const connectionString = process.env.DATABASE_URL;
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
 
 // Re-export a single Prisma instance for app-wide use
-export const prisma = new PrismaClient();
+export const prisma = new PrismaClient({ adapter });
